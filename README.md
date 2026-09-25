@@ -4,6 +4,23 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 12 status
+
+The risk-focused test suite now has two explicit layers. Forty-four fast unit/domain tests run without a database. Six Supertest integration scenarios drive the real Express API and migrated PostgreSQL database, proving exact Nusrat/Rafiq fares, passenger and driver ownership, cancellation rules, lifecycle transitions/history, capacity rollback, and a real concurrent final-seat race.
+
+The concurrency scenario allocates two seats, then sends Rafiq's and Shirin's one-seat acceptance calls at the same time. It asserts one success plus one `409 POOL_CAPACITY_EXCEEDED`, `occupiedSeats === 3`, exactly one winning contender membership, and no partial data for the loser.
+
+Integration tests require explicit opt-in through `.env.test`, use only isolated `itest-*` identities, and clean those fixtures without changing the story seed accounts.
+
+```bash
+copy .env.test.example .env.test
+npm run db:test:prepare
+npm run test:integration
+npm run test:all
+```
+
+See [Testing and concurrency](docs/testing.md).
+
 ## Step 11 status
 
 The frontend is now connected end to end to the Express API. Registration creates passenger accounts, login supports both roles and seeded one-click demos, JWT sessions survive refreshes, and role-aware navigation opens the correct product dashboard.
@@ -154,4 +171,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Integration/concurrency testing, Docker, deployment, final screenshots, and the final video will be added in later feature branches.
+Docker, deployment, final screenshots, and the final video will be added in later feature branches.
