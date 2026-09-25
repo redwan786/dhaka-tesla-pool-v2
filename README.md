@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 6 status
+
+Geography and fare rules are now executable domain code. The API lists seeded Dhaka zones and returns a pooled fare estimate with an integer-paisa breakdown. Nusrat's Banani–Mohakhali example uses 4 km and ৳76.50; Rafiq's Banani–Gulshan 1 example uses 3 km and ৳63.75. Destination compatibility uses a 4 km Haversine threshold while unknown fare routes use a documented road-distance fallback.
+
 ## Step 5 status
 
 Authentication and authorization are now implemented: passenger registration, passenger/driver login, bcrypt password hashing, signed JWT access tokens, authenticated current-user lookup, role middleware, reusable ownership guards, and authentication audit records. Public registration is passenger-only; the seeded Jashim account represents the provisioned driver.

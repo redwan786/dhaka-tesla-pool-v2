@@ -52,6 +52,8 @@ A new request is compatible with an existing OPEN Bullet pool when:
 
 For the demo, Banani → Mohakhali and Banani → Gulshan 1 are intentionally compatible. This is deterministic, easy to test, and easy to explain.
 
+Fare distance uses a small documented route-distance table for the demo examples. An unknown pair falls back to `Haversine distance × 1.35`, rounded to one decimal place, to approximate a simple road-distance factor without a map API.
+
 ## 4. Fare assumption
 
 Money is stored as integer paisa/poysha, not a floating-point decimal.

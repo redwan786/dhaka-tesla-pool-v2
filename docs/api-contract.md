@@ -14,8 +14,8 @@ GET  /api/health
 ## Geography/fare routes
 
 ```text
-GET  /api/zones
-POST /api/zones/estimate
+GET  /api/zones           # seeded Dhaka zones
+POST /api/zones/estimate # pickup/destination UUIDs → integer-paisa fare breakdown
 ```
 
 ## Passenger routes
