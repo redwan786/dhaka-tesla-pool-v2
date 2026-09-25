@@ -4,6 +4,20 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 13 status
+
+The repository now has a reproducible Docker path in addition to the normal Supabase workflow. `docker compose up --build` starts PostgreSQL 16, the production Express API, and the standalone Next.js server. PostgreSQL health gates the API; the API entrypoint applies migrations and idempotent story seed data before starting; API health gates the web container. All services have health checks and run with named-volume persistence.
+
+```bash
+docker compose up --build
+```
+
+- Web: http://localhost:3000
+- API health: http://localhost:4000/health
+- PostgreSQL: localhost:5432
+
+The application containers use non-root users and multi-stage builds. No real secret is committed: optional local overrides live in the ignored `.env.docker`, created from `.env.docker.example`. See [Docker setup](docs/docker.md).
+
 ## Step 12 status
 
 The risk-focused test suite now has two explicit layers. Forty-four fast unit/domain tests run without a database. Six Supertest integration scenarios drive the real Express API and migrated PostgreSQL database, proving exact Nusrat/Rafiq fares, passenger and driver ownership, cancellation rules, lifecycle transitions/history, capacity rollback, and a real concurrent final-seat race.
@@ -171,4 +185,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Docker, deployment, final screenshots, and the final video will be added in later feature branches.
+Deployment, final screenshots, and the final video will be added in later feature branches.
