@@ -2,7 +2,10 @@
   "name": "dhaka-tesla-pool",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["apps/api", "apps/web"],
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
   "scripts": {
     "dev": "concurrently \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "npm --workspace apps/api run dev",
@@ -11,7 +14,10 @@
     "build:api": "npm --workspace apps/api run build",
     "build:web": "npm --workspace apps/web run build",
     "start:api": "npm --workspace apps/api run start",
-    "start:web": "npm --workspace apps/web run start"
+    "start:web": "npm --workspace apps/web run start",
+    "db:generate": "npm --workspace apps/api run db:generate",
+    "db:migrate": "npm --workspace apps/api run db:migrate",
+    "db:seed": "npm --workspace apps/api run db:seed"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
