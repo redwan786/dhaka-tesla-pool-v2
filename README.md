@@ -4,6 +4,18 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 10 status
+
+The Next.js frontend foundation is now ready for the product screens. It includes a responsive App Router layout and navigation, Tailwind design tokens, a typed API client with normalized errors, JWT session restoration through `/auth/me`, a protected-route boundary, and reusable buttons, cards, form controls, status badges, loading, error, and empty states. The public home, sign-in foundation, protected dashboard foundation, route-level loading/error, and custom not-found routes all build successfully.
+
+This step intentionally does not implement the final passenger and driver product screens. Those API-backed flows belong to `feature/frontend-flows` in Step 11, preserving a meaningful incremental history.
+
+Frontend environment:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+```
+
 ## Step 9 status
 
 Jashim's complete backend workflow is now implemented. An authenticated driver can inspect Bullet and its active pool, go online/offline, see only waiting requests that fit the current capacity and matching rule, inspect assigned passengers/seats and pool history, and advance a pool through `OPEN → ARRIVED → IN_PROGRESS → COMPLETED`. Every pool transition locks the pool, verifies ownership and the required current state, updates every active passenger ride in the same transaction, appends status history, and writes an audit event.
@@ -119,4 +131,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Frontend product flows, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Passenger/driver product screens, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.

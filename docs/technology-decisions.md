@@ -10,6 +10,18 @@
 
 **When to switch:** If this becomes a purely client-rendered internal tool and the server-rendering/layout benefits are not useful, plain React/Vite could reduce framework overhead.
 
+### Frontend state and API boundary
+
+**Picked:** A small React Context for the authenticated user/token plus a framework-independent typed `fetch` wrapper.
+
+**Alternatives:** Redux Toolkit, Zustand, TanStack Query, Axios, or server-only cookie sessions.
+
+**Why this fits:** The MVP has one global session and a modest number of request-driven screens. Context avoids introducing a state library before the product needs it, while one API wrapper consistently adds the Bearer token and turns backend errors into typed `ApiError` values.
+
+The MVP stores the short-lived JWT in browser local storage so the session survives refreshes and remains straightforward to demonstrate. The trade-off is exposure if an XSS vulnerability exists. A production version would prefer an `HttpOnly`, `Secure`, `SameSite` cookie with CSRF protection and a refresh-token rotation strategy.
+
+**When to switch:** Add TanStack Query when caching, background refresh, deduplication, and optimistic updates become substantial. Move to secure cookies before handling production identities or payments.
+
 ## Backend: Express
 
 **Picked:** Express with TypeScript and REST.
