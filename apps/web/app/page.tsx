@@ -24,10 +24,10 @@ export default function HomePage() {
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <Link className="rounded-full bg-mint px-6 py-3 text-sm font-black text-ink transition hover:bg-white" href="/login">
-                Open sign-in foundation
+                Sign in to the demo
               </Link>
               <Link className="rounded-full border border-white/20 px-6 py-3 text-sm font-black text-white transition hover:bg-white/10" href="/dashboard">
-                Test protected route
+                Open your dashboard
               </Link>
             </div>
           </div>
