@@ -4,6 +4,33 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 9 status
+
+Jashim's complete backend workflow is now implemented. An authenticated driver can inspect Bullet and its active pool, go online/offline, see only waiting requests that fit the current capacity and matching rule, inspect assigned passengers/seats and pool history, and advance a pool through `OPEN → ARRIVED → IN_PROGRESS → COMPLETED`. Every pool transition locks the pool, verifies ownership and the required current state, updates every active passenger ride in the same transaction, appends status history, and writes an audit event.
+
+Driver safety rules added in this step:
+
+- an offline driver cannot view or accept waiting requests;
+- a driver cannot go offline while a pool is active;
+- an arrived/in-progress vehicle cannot accept another request;
+- skipped, repeated, reversed, or terminal state transitions return `INVALID_POOL_TRANSITION`;
+- cancelled memberships are excluded from lifecycle changes;
+- Jashim can manage only pools that belong to Bullet.
+
+Implemented driver endpoints:
+
+```text
+GET   /api/driver/vehicle
+PATCH /api/driver/online-status
+GET   /api/driver/requests
+GET   /api/driver/pools
+GET   /api/driver/pools/:poolId
+POST  /api/driver/rides/:rideId/accept
+POST  /api/driver/pools/:poolId/arrive
+POST  /api/driver/pools/:poolId/start
+POST  /api/driver/pools/:poolId/complete
+```
+
 ## Step 8 status
 
 Tesla pooling and capacity allocation are now implemented. Jashim can accept a waiting ride into a new Bullet pool or the compatible existing OPEN pool. The transaction locks Bullet's vehicle row before re-reading capacity, then atomically creates an explicit membership, snapshots that passenger's fare, increments occupied seats, changes the ride to `MATCHED`, and records status/audit history. Bullet can never exceed its three-seat capacity; a concurrent loser receives `POOL_CAPACITY_EXCEEDED` or `RIDE_NOT_REQUESTED` without partial data.
@@ -92,4 +119,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Driver lifecycle, frontend product flows, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Frontend product flows, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
