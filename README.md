@@ -4,6 +4,29 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 11 status
+
+The frontend is now connected end to end to the Express API. Registration creates passenger accounts, login supports both roles and seeded one-click demos, JWT sessions survive refreshes, and role-aware navigation opens the correct product dashboard.
+
+Passenger experience:
+
+- select predefined pickup/destination zones and 1–3 seats;
+- see a live, hand-checkable pooled-fare estimate before requesting;
+- create one active ride, track its lifecycle and assigned Tesla;
+- see only the authenticated passenger's fare/history;
+- inspect the status timeline and cancel only while valid.
+
+Driver experience:
+
+- inspect Bullet, fixed capacity, availability, and active pool;
+- go online/offline with backend safety rules;
+- receive only currently relevant requests and accept them into a pool;
+- see assigned passengers, routes, seats, membership status, and capacity;
+- perform explicit arrive/start/complete actions;
+- keep completed/cancelled pool history.
+
+Both dashboards provide loading, error, empty, confirmation, disabled, action-in-progress, and periodic-refresh states. See [Frontend flows](docs/frontend-flows.md).
+
 ## Step 10 status
 
 The Next.js frontend foundation is now ready for the product screens. It includes a responsive App Router layout and navigation, Tailwind design tokens, a typed API client with normalized errors, JWT session restoration through `/auth/me`, a protected-route boundary, and reusable buttons, cards, form controls, status badges, loading, error, and empty states. The public home, sign-in foundation, protected dashboard foundation, route-level loading/error, and custom not-found routes all build successfully.
@@ -131,4 +154,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Passenger/driver product screens, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Integration/concurrency testing, Docker, deployment, final screenshots, and the final video will be added in later feature branches.
