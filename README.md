@@ -2,187 +2,368 @@
 
 > Share a seat. Split the fare. Survive Dhaka traffic.
 
-This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
+Dhaka Tesla Pool is a production-minded ride-pooling MVP built around the Banani rush-hour story. Nusrat, Rafiq, and Shirin request seats; Jashim drives **Bullet**, a fixed-capacity three-seat Tesla; compatible requests share one pool while each passenger keeps an individual fare, status, and history.
 
-## Step 13 status
+## Live demo
 
-The repository now has a reproducible Docker path in addition to the normal Supabase workflow. `docker compose up --build` starts PostgreSQL 16, the production Express API, and the standalone Next.js server. PostgreSQL health gates the API; the API entrypoint applies migrations and idempotent story seed data before starting; API health gates the web container. All services have health checks and run with named-volume persistence.
+| Resource | URL |
+|---|---|
+| Frontend | **Pending Step 14 deployment — add the Vercel production URL here** |
+| API health | **Pending Step 14 deployment — add the Render `/health` URL here** |
+| Six-minute walkthrough | **Pending Step 15 recording — add the Loom/video URL here** |
+
+Deployment instructions and the exact post-deploy verification sequence are in [docs/deployment.md](docs/deployment.md).
+
+## Problem
+
+Nusrat travels from Banani to Mohakhali while Rafiq travels from Banani to Gulshan 1. Their routes overlap, so the system should place them in the same Tesla when capacity and route compatibility allow it. The difficult parts are not map rendering: they are ownership, lifecycle rules, individual fare snapshots, capacity integrity, and ensuring two simultaneous requests cannot take Bullet's final seat.
+
+## Implemented features
+
+### Passenger
+
+- Passenger registration and login
+- Predefined Dhaka pickup and destination zones
+- One-to-three-seat ride requests
+- Live, hand-checkable pooled-fare estimate
+- Personal ride status and fare visibility
+- Status timeline and ride history
+- Valid cancellation while `REQUESTED` or `MATCHED`
+- Ownership enforcement: passengers cannot read or modify another passenger's ride
+
+### Driver / Tesla
+
+- Seeded Jashim driver account and Bullet vehicle
+- Online/offline availability with active-pool safety rules
+- Relevant request list filtered by route and remaining capacity
+- Accept request into a new or compatible open pool
+- Passenger, route, seat, fare, and occupancy visibility
+- Explicit arrive, start, and complete actions
+- Active and completed pool history
+
+### Pooling and integrity
+
+- Same-pickup and compatible-destination matching
+- Explicit pool membership
+- Fixed three-seat capacity
+- Transactional seat allocation with PostgreSQL row locking
+- Individual immutable fare snapshots
+- Atomic pool and passenger lifecycle updates
+- Status history and audit logs
+- Real concurrent final-seat integration test
+
+### Interface and operations
+
+- Responsive Next.js interface
+- Role-aware protected routes and navigation
+- Loading, error, empty, confirmation, disabled, and success states
+- Typed frontend API client
+- Structured backend logging, Helmet, CORS, validation, and normalized errors
+- Supabase PostgreSQL workflow
+- Reproducible Docker Compose environment with health checks, migration, and seed
+
+## Screenshots
+
+### Home
+
+![Dhaka Tesla Pool home](docs/screenshots/home.png)
+
+### Sign in
+
+![Dhaka Tesla Pool sign in](docs/screenshots/login.png)
+
+More passenger, driver, pooling, and edge-case screenshots are captured during the Step 15 release walkthrough.
+
+## Demo identities
+
+The seed is idempotent and uses the PRD cast consistently.
+
+| Role | Name | Email | Password |
+|---|---|---|---|
+| Driver | Jashim | `jashim@teslapool.local` | `Pass123!` |
+| Passenger | Nusrat | `nusrat@teslapool.local` | `Pass123!` |
+| Passenger | Rafiq | `rafiq@teslapool.local` | `Pass123!` |
+| Passenger | Shirin | `shirin@teslapool.local` | `Pass123!` |
+
+These are demo-only credentials. No production secret is committed.
+
+## Lifecycle
+
+```text
+REQUESTED → MATCHED → DRIVER_ARRIVED → STARTED → COMPLETED
+     └──────────────→ CANCELLED ←──────────────┘
+```
+
+- A passenger may cancel only from `REQUESTED` or `MATCHED`.
+- A driver moves a pool through `OPEN → ARRIVED → IN_PROGRESS → COMPLETED`.
+- Pool commands atomically update every active member's ride status and history.
+- Skipped, repeated, reversed, and terminal transitions are rejected.
+
+## Matching and fare rules
+
+### Matching
+
+Requests can share a pool when:
+
+1. pickup zone IDs are identical;
+2. destinations are at most **4 km apart** by Haversine distance;
+3. the pool is still `OPEN`; and
+4. requested seats fit Bullet's remaining capacity.
+
+### Fare
+
+```text
+passengerFare = baseFare + distanceCharge - poolDiscount
+baseFare      = ৳30.00
+distanceRate  = ৳15.00/km
+poolDiscount  = 15%
+```
+
+Money is stored as integer paisa to avoid floating-point rounding errors.
+
+| Passenger route | Distance | Calculation | Fare |
+|---|---:|---|---:|
+| Nusrat: Banani → Mohakhali | 4 km | `(৳30 + 4 × ৳15) − 15%` | **৳76.50** |
+| Rafiq: Banani → Gulshan 1 | 3 km | `(৳30 + 3 × ৳15) − 15%` | **৳63.75** |
+
+Configured demo routes use fixed road estimates. Other zone pairs use Haversine distance multiplied by a documented `1.35` road factor. Payment is cash or simulated TeslaPay; there is no real gateway.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    Browser[Browser]
+    Web[Next.js App Router<br/>React + TypeScript]
+    API[Express REST API<br/>Auth + validation + domain rules]
+    DB[(Supabase PostgreSQL<br/>Prisma ORM)]
+    DockerDB[(Docker PostgreSQL<br/>reproducible fallback)]
+
+    Browser --> Web
+    Web -->|HTTPS JSON| API
+    API --> DB
+    API -. evaluator fallback .-> DockerDB
+```
+
+The browser never talks directly to PostgreSQL. The Express API owns authentication, authorization, validation, fares, lifecycle transitions, and seat allocation.
+
+Detailed diagrams and request flows: [Architecture](docs/architecture.md).
+
+## ERD
+
+```mermaid
+erDiagram
+    USER ||--o| VEHICLE : owns
+    USER ||--o{ RIDE_REQUEST : creates
+    USER ||--o{ POOL_MEMBER : joins
+    USER ||--o{ STATUS_HISTORY : changes
+    USER ||--o{ AUDIT_LOG : performs
+    VEHICLE ||--o{ POOL : operates
+    ZONE ||--o{ RIDE_REQUEST : pickup
+    ZONE ||--o{ RIDE_REQUEST : destination
+    POOL ||--o{ RIDE_REQUEST : contains
+    POOL ||--o{ POOL_MEMBER : has
+    RIDE_REQUEST ||--o| POOL_MEMBER : becomes
+    RIDE_REQUEST ||--o{ STATUS_HISTORY : records
+    RIDE_REQUEST ||--o| PAYMENT : settles
+```
+
+Every relationship, table, index, and integrity rule is explained in [docs/erd.md](docs/erd.md).
+
+## Technology stack
+
+| Layer | Choice | Why it fits |
+|---|---|---|
+| Frontend | Next.js App Router, React, TypeScript, Tailwind CSS | Clear routes, typed UI, responsive product states |
+| Backend | Node.js, Express, TypeScript, Zod | Small, explicit REST and middleware boundaries |
+| Database | PostgreSQL on Supabase | Transactions, constraints, row locks, relational history |
+| ORM | Prisma | Typed schema, migrations, relations, raw SQL where locking is required |
+| Authentication | JWT + bcrypt | Visible role/ownership enforcement for the challenge |
+| Tests | Vitest + Supertest | Fast domain tests plus real HTTP/PostgreSQL integration |
+| Local delivery | Docker Compose | Reproducible app and database environment |
+| Hosting plan | Vercel + Render + Supabase | Free-tier-oriented and replaceable |
+
+Alternatives, trade-offs, and switch conditions are documented in [docs/technology-decisions.md](docs/technology-decisions.md).
+
+## Project structure
+
+```text
+.
+├── apps/
+│   ├── api/
+│   │   ├── prisma/            # schema, migrations, seed
+│   │   ├── src/modules/       # auth, geography, passenger, pool, driver
+│   │   └── tests/             # unit and integration tests
+│   └── web/
+│       ├── app/               # App Router pages
+│       ├── components/        # shared and product UI
+│       ├── lib/               # typed API/auth/domain helpers
+│       └── providers/         # browser session provider
+├── docker/                    # API entrypoint
+├── docs/                      # design, operations, scale, and submission docs
+├── docker-compose.yml
+├── render.yaml
+└── package.json
+```
+
+## Prerequisites
+
+- Node.js 22+
+- npm 10+
+- PostgreSQL database, normally Supabase
+- Optional: Docker Desktop with Compose
+
+## Environment variables
+
+Copy the template:
+
+```bash
+cp .env.example .env
+```
+
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+| Variable | Used by | Purpose |
+|---|---|---|
+| `NODE_ENV` | API | `development`, `test`, or `production` |
+| `PORT` | API host | Hosting-provider port; overrides `API_PORT` |
+| `API_PORT` | API | Local API port, default `4000` |
+| `WEB_ORIGIN` | API | Allowed frontend origin; comma-separated values supported |
+| `DATABASE_URL` | Prisma/API | Runtime PostgreSQL URL |
+| `DIRECT_URL` | Prisma | Direct PostgreSQL URL for migrations |
+| `JWT_SECRET` | API | At least 24 characters; never expose to the frontend |
+| `LOG_LEVEL` | API | Pino logging level |
+| `NEXT_PUBLIC_API_URL` | Web build | Browser-facing API URL ending in `/api` |
+
+Never commit `.env`, `.env.test`, tokens, connection strings, or real passwords.
+
+## Local setup with Supabase
+
+```bash
+npm install
+npm run db:generate
+npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+npm run db:seed
+npm run dev
+```
+
+Open:
+
+- Frontend: `http://localhost:3000`
+- API health: `http://localhost:4000/health`
+
+## Docker setup
 
 ```bash
 docker compose up --build
 ```
 
-- Web: http://localhost:3000
-- API health: http://localhost:4000/health
-- PostgreSQL: localhost:5432
-
-The application containers use non-root users and multi-stage builds. No real secret is committed: optional local overrides live in the ignored `.env.docker`, created from `.env.docker.example`. See [Docker setup](docs/docker.md).
-
-## Step 12 status
-
-The risk-focused test suite now has two explicit layers. Forty-four fast unit/domain tests run without a database. Six Supertest integration scenarios drive the real Express API and migrated PostgreSQL database, proving exact Nusrat/Rafiq fares, passenger and driver ownership, cancellation rules, lifecycle transitions/history, capacity rollback, and a real concurrent final-seat race.
-
-The concurrency scenario allocates two seats, then sends Rafiq's and Shirin's one-seat acceptance calls at the same time. It asserts one success plus one `409 POOL_CAPACITY_EXCEEDED`, `occupiedSeats === 3`, exactly one winning contender membership, and no partial data for the loser.
-
-Integration tests require explicit opt-in through `.env.test`, use only isolated `itest-*` identities, and clean those fixtures without changing the story seed accounts.
+The Compose stack starts PostgreSQL 16, applies migrations, upserts the story seed, starts the API, waits for health, and starts the standalone frontend.
 
 ```bash
-copy .env.test.example .env.test
+docker compose ps
+docker compose logs -f
+docker compose down
+```
+
+Full instructions and reset behavior: [docs/docker.md](docs/docker.md).
+
+## Tests
+
+### Unit/domain
+
+```bash
+npm run test:typecheck
+npm run test:unit
+```
+
+Current result: **44 tests passing**.
+
+### Real API/PostgreSQL integration
+
+```powershell
+Copy-Item .env.test.example .env.test
 npm run db:test:prepare
 npm run test:integration
-npm run test:all
 ```
 
-See [Testing and concurrency](docs/testing.md).
+Current result: **6 integration scenarios passing**, including the real concurrent final-seat race.
 
-## Step 11 status
+The concurrency test starts Rafiq and Shirin's final-seat requests together. Exactly one succeeds, one receives `409 POOL_CAPACITY_EXCEEDED`, occupancy remains `3`, and the loser has no partial membership. See [docs/testing.md](docs/testing.md).
 
-The frontend is now connected end to end to the Express API. Registration creates passenger accounts, login supports both roles and seeded one-click demos, JWT sessions survive refreshes, and role-aware navigation opens the correct product dashboard.
+## REST API overview
 
-Passenger experience:
+| Area | Endpoints |
+|---|---|
+| Auth | `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me` |
+| Geography | `GET /api/zones`, `POST /api/zones/estimate` |
+| Passenger | create/list/read/cancel `/api/passenger/rides` |
+| Driver | vehicle, online status, relevant requests, accept ride, pools |
+| Lifecycle | arrive/start/complete explicit pool commands |
+| Health | `GET /health`, `GET /api/health` |
 
-- select predefined pickup/destination zones and 1–3 seats;
-- see a live, hand-checkable pooled-fare estimate before requesting;
-- create one active ride, track its lifecycle and assigned Tesla;
-- see only the authenticated passenger's fare/history;
-- inspect the status timeline and cancel only while valid.
+Request/response rules and stable error codes: [docs/api-contract.md](docs/api-contract.md).
 
-Driver experience:
+## Key decisions and trade-offs
 
-- inspect Bullet, fixed capacity, availability, and active pool;
-- go online/offline with backend safety rules;
-- receive only currently relevant requests and accept them into a pool;
-- see assigned passengers, routes, seats, membership status, and capacity;
-- perform explicit arrive/start/complete actions;
-- keep completed/cancelled pool history.
+- **Modular monolith over microservices:** easier to deploy, debug, and explain for one bounded MVP.
+- **REST over GraphQL:** explicit resource and command endpoints match the small workflow.
+- **PostgreSQL as capacity authority:** `SELECT ... FOR UPDATE` serializes competing allocations; the UI's available-seat value is advisory.
+- **Integer paisa:** deterministic arithmetic without floating-point money errors.
+- **Predefined zones:** enough to evaluate matching without rebuilding Google Maps.
+- **JWT in local storage:** simple for an MVP demo, but a production identity system should use secure `HttpOnly` cookies, CSRF protection, and refresh rotation.
+- **Polling over WebSockets:** keeps the MVP operationally small; real-time transport is a future improvement.
 
-Both dashboards provide loading, error, empty, confirmation, disabled, action-in-progress, and periodic-refresh states. See [Frontend flows](docs/frontend-flows.md).
+## Known limitations
 
-## Step 10 status
+- No live GPS, turn-by-turn routing, traffic, or map provider
+- One seeded driver and one fixed-capacity vehicle
+- No real payment gateway
+- No password reset, MFA, social login, rating, or support workflow
+- Dashboard updates use polling rather than push events
+- Free backend hosting may cold-start
+- Browser end-to-end automation is not included; risk-focused API integration is included
 
-The Next.js frontend foundation is now ready for the product screens. It includes a responsive App Router layout and navigation, Tailwind design tokens, a typed API client with normalized errors, JWT session restoration through `/auth/me`, a protected-route boundary, and reusable buttons, cards, form controls, status badges, loading, error, and empty states. The public home, sign-in foundation, protected dashboard foundation, route-level loading/error, and custom not-found routes all build successfully.
+## Next improvements
 
-This step intentionally does not implement the final passenger and driver product screens. Those API-backed flows belong to `feature/frontend-flows` in Step 11, preserving a meaningful incremental history.
+- Secure cookie-based sessions and refresh rotation
+- PostGIS-based pickup and route matching
+- WebSocket/SSE ride status updates
+- Idempotency keys for ride and driver commands
+- Rate limiting and abuse controls
+- Payment/rating workflows
+- Browser E2E smoke tests
+- Production observability, backup drills, and deployment rollback automation
 
-Frontend environment:
+The reasoned 1M-passenger/100k-driver evolution is documented in [docs/scaling.md](docs/scaling.md).
 
-```env
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-```
+## AI usage
 
-## Step 9 status
+AI use is disclosed rather than hidden.
 
-Jashim's complete backend workflow is now implemented. An authenticated driver can inspect Bullet and its active pool, go online/offline, see only waiting requests that fit the current capacity and matching rule, inspect assigned passengers/seats and pool history, and advance a pool through `OPEN → ARRIVED → IN_PROGRESS → COMPLETED`. Every pool transition locks the pool, verifies ownership and the required current state, updates every active passenger ride in the same transaction, appends status history, and writes an audit event.
+- **Tools:** ChatGPT/Notion AI for implementation planning, code review, test-scenario generation, documentation structure, and debugging support; official Next.js, Express, Prisma, PostgreSQL, Supabase, Vitest, Supertest, Docker, Render, and Vercel documentation for verification.
+- **Accepted suggestion:** use a PostgreSQL row lock plus one transaction for final-seat allocation, then prove it with two concurrent HTTP requests and database assertions.
+- **Rejected/changed suggestion:** do not add Redis, queues, microservices, or direct frontend-to-database writes merely to look scalable. The implemented MVP keeps one Express boundary and PostgreSQL as the consistency authority; future scaling is reasoned separately.
+- **Ownership:** every generated suggestion was reviewed, tested, and adapted to this domain. The author remains responsible for explaining and modifying the architecture, schema, authentication, pooling, failure paths, and concurrency behavior.
 
-Driver safety rules added in this step:
-
-- an offline driver cannot view or accept waiting requests;
-- a driver cannot go offline while a pool is active;
-- an arrived/in-progress vehicle cannot accept another request;
-- skipped, repeated, reversed, or terminal state transitions return `INVALID_POOL_TRANSITION`;
-- cancelled memberships are excluded from lifecycle changes;
-- Jashim can manage only pools that belong to Bullet.
-
-Implemented driver endpoints:
-
-```text
-GET   /api/driver/vehicle
-PATCH /api/driver/online-status
-GET   /api/driver/requests
-GET   /api/driver/pools
-GET   /api/driver/pools/:poolId
-POST  /api/driver/rides/:rideId/accept
-POST  /api/driver/pools/:poolId/arrive
-POST  /api/driver/pools/:poolId/start
-POST  /api/driver/pools/:poolId/complete
-```
-
-## Step 8 status
-
-Tesla pooling and capacity allocation are now implemented. Jashim can accept a waiting ride into a new Bullet pool or the compatible existing OPEN pool. The transaction locks Bullet's vehicle row before re-reading capacity, then atomically creates an explicit membership, snapshots that passenger's fare, increments occupied seats, changes the ride to `MATCHED`, and records status/audit history. Bullet can never exceed its three-seat capacity; a concurrent loser receives `POOL_CAPACITY_EXCEEDED` or `RIDE_NOT_REQUESTED` without partial data.
-
-Apply the new database integrity migration before testing this step:
-
-```bash
-npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
-```
-
-Driver endpoint added in this step:
-
-```text
-POST /api/driver/rides/:rideId/accept
-```
-
-## Step 7 status
-
-The authenticated passenger ride flow is now implemented: request a ride with pickup/destination/seats, snapshot the integer-paisa fare, list and inspect only the passenger's own rides, preserve status history and audit records, prevent multiple active rides, and cancel only while `REQUESTED` or `MATCHED`. Matched cancellation safely releases occupied seats inside a transaction.
-
-## Step 6 status
-
-Geography and fare rules are now executable domain code. The API lists seeded Dhaka zones and returns a pooled fare estimate with an integer-paisa breakdown. Nusrat's Banani–Mohakhali example uses 4 km and ৳76.50; Rafiq's Banani–Gulshan 1 example uses 3 km and ৳63.75. Destination compatibility uses a 4 km Haversine threshold while unknown fare routes use a documented road-distance fallback.
-
-## Step 5 status
-
-Authentication and authorization are now implemented: passenger registration, passenger/driver login, bcrypt password hashing, signed JWT access tokens, authenticated current-user lookup, role middleware, reusable ownership guards, and authentication audit records. Public registration is passenger-only; the seeded Jashim account represents the provisioned driver.
-
-## Step 4 status
-
-The Express backend foundation now includes validated environment configuration, structured request logging, security headers, CORS policy, standard success/error responses, Zod validation middleware, Prisma error mapping, a reusable Prisma client, modular routes, and health endpoints. Business features remain intentionally deferred.
-
-## Step 3 status
-
-The relational database foundation is now included in `apps/api/prisma/`: Prisma schema, initial migration, and story-consistent seed data for Supabase PostgreSQL or the later Docker PostgreSQL fallback. Business API routes are intentionally deferred to later steps.
-
-## Step 2 status
-
-Architecture-first documentation is now included in `docs/`: system architecture, ERD, domain rules, API contract, and technology decisions. Database schema and business features are intentionally deferred to later steps.
-
-## Step 1 status
-
-The project foundation is in place:
-
-- Next.js App Router frontend
-- Express + TypeScript API
-- Monorepo workspace scripts
-- Environment variable template
-- API health endpoint
-- Initial frontend shell
-- No real domain feature has been added yet
-
-## Local prerequisites
-
-- Node.js 22 or newer
-- npm 10 or newer
-- Supabase account for the database step
-- Docker is not needed for this foundation step; Docker Compose files will be added later for reproducibility
-
-## Run the foundation
-
-```bash
-npm install
-npm run dev
-```
-
-- Frontend: http://localhost:3000
-- API health: http://localhost:4000/health
-
-## Environment
-
-Copy `.env.example` to `.env` when environment-backed features are introduced. Never commit `.env` or real secrets.
-
-## Planned architecture
-
-```text
-Browser → Next.js frontend → Node.js Express API → Supabase PostgreSQL
-                                                   ↘ Docker PostgreSQL fallback
-```
-
-Detailed architecture and design documents:
+## Supporting documents
 
 - [Architecture](docs/architecture.md)
-- [Domain rules](docs/domain-model.md)
+- [Domain and fare rules](docs/domain-model.md)
 - [ERD](docs/erd.md)
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
+- [Frontend flows](docs/frontend-flows.md)
+- [Testing and concurrency](docs/testing.md)
+- [Docker](docs/docker.md)
+- [Deployment](docs/deployment.md)
+- [Viral-scale reasoning](docs/scaling.md)
+- [Six-minute video script](docs/video-script.md)
+- [Submission checklist](docs/submission-checklist.md)
 
-Deployment, final screenshots, and the final video will be added in later feature branches.
+## License
+
+This repository was created for the RoBenDevs Software Engineer Internship challenge.
