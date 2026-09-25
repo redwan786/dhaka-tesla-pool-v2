@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 4 status
+
+The Express backend foundation now includes validated environment configuration, structured request logging, security headers, CORS policy, standard success/error responses, Zod validation middleware, Prisma error mapping, a reusable Prisma client, modular routes, and health endpoints. Business features remain intentionally deferred.
+
 ## Step 3 status
 
 The relational database foundation is now included in `apps/api/prisma/`: Prisma schema, initial migration, and story-consistent seed data for Supabase PostgreSQL or the later Docker PostgreSQL fallback. Business API routes are intentionally deferred to later steps.
