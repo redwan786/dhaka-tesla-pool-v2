@@ -7,6 +7,7 @@ import {
 import { AppError } from '../../errors/app-error.js';
 import type { AuthenticatedUser } from '../../lib/auth.js';
 import { prisma } from '../../lib/prisma.js';
+import { ACTIVE_POOL_STATUSES, assertDriverIsOnline } from '../driver/driver.domain.js';
 import {
   assertPoolHasCapacity,
   assertRideCanBeAccepted,
@@ -51,6 +52,12 @@ export async function acceptRideIntoPool(rideId: string, actor: AuthenticatedUse
       FOR UPDATE
     `;
 
+    const driver = await transaction.user.findUniqueOrThrow({
+      where: { id: actor.id },
+      select: { isOnline: true },
+    });
+    assertDriverIsOnline(driver.isOnline);
+
     const ride = await transaction.rideRequest.findUnique({
       where: { id: rideId },
       include: { pickupZone: true, destinationZone: true },
@@ -59,7 +66,7 @@ export async function acceptRideIntoPool(rideId: string, actor: AuthenticatedUse
     assertRideCanBeAccepted(ride.status);
 
     let openPool = await transaction.pool.findFirst({
-      where: { vehicleId: vehicle.id, status: PoolStatus.OPEN },
+      where: { vehicleId: vehicle.id, status: { in: [...ACTIVE_POOL_STATUSES] } },
       include: {
         rides: {
           where: { member: { status: PoolMemberStatus.ACTIVE } },
@@ -69,6 +76,14 @@ export async function acceptRideIntoPool(rideId: string, actor: AuthenticatedUse
         },
       },
     });
+
+    if (openPool && openPool.status !== PoolStatus.OPEN) {
+      throw AppError.conflict(
+        'VEHICLE_ALREADY_ON_TRIP',
+        'Complete the active trip before accepting another ride',
+        { poolId: openPool.id, status: openPool.status },
+      );
+    }
 
     if (openPool) {
       const referenceRide = openPool.rides[0];
