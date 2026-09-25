@@ -13,16 +13,16 @@ export default function HomePage() {
     <main>
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -right-28 -top-28 h-96 w-96 rounded-full border-[70px] border-mint/10" />
-        <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.25fr_.75fr]">
+        <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.25fr_.75fr]">
           <div className="relative z-10">
             <p className="text-xs font-extrabold uppercase tracking-[0.28em] text-mint">Step 10 · Frontend foundation</p>
-            <h1 className="mt-7 max-w-4xl text-5xl font-black leading-[0.92] tracking-[-0.06em] sm:text-7xl lg:text-[5.75rem] xl:text-[6.5rem]">
+            <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.055em] sm:text-6xl lg:text-[4.75rem] xl:text-[5.25rem]">
               Share a seat.<br /><span className="text-mint">Split the fare.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-white/65">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/65">
               A clear interface foundation for passengers, drivers, and a three-seat Tesla moving through Dhaka traffic.
             </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link className="rounded-full bg-mint px-6 py-3 text-sm font-black text-ink transition hover:bg-white" href="/login">
                 Sign in to the demo
               </Link>
