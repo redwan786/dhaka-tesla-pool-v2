@@ -77,6 +77,8 @@ Hand-checkable demo distances:
 
 The calculated fare is snapshotted on the ride/pool membership so later pricing changes cannot rewrite history.
 
+A ride request consumes `requestedSeats` from vehicle capacity. The MVP prices a passenger party as `per-seat pooled fare × requestedSeats`; the one-seat Nusrat and Rafiq examples remain unchanged. A passenger may have only one active ride (`REQUESTED`, `MATCHED`, `DRIVER_ARRIVED`, or `STARTED`) at a time.
+
 ## 5. Payment assumption
 
 The MVP supports a documented cash settlement assumption. A payment record can store:

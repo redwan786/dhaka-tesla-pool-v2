@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 7 status
+
+The authenticated passenger ride flow is now implemented: request a ride with pickup/destination/seats, snapshot the integer-paisa fare, list and inspect only the passenger's own rides, preserve status history and audit records, prevent multiple active rides, and cancel only while `REQUESTED` or `MATCHED`. Matched cancellation safely releases occupied seats inside a transaction.
+
 ## Step 6 status
 
 Geography and fare rules are now executable domain code. The API lists seeded Dhaka zones and returns a pooled fare estimate with an integer-paisa breakdown. Nusrat's Banani–Mohakhali example uses 4 km and ৳76.50; Rafiq's Banani–Gulshan 1 example uses 3 km and ৳63.75. Destination compatibility uses a 4 km Haversine threshold while unknown fare routes use a documented road-distance fallback.
