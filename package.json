@@ -17,7 +17,8 @@
     "start:web": "npm --workspace apps/web run start",
     "db:generate": "npm --workspace apps/api run db:generate",
     "db:migrate": "npm --workspace apps/api run db:migrate",
-    "db:seed": "npm --workspace apps/api run db:seed"
+    "db:seed": "npm --workspace apps/api run db:seed",
+    "test": "npm --workspace apps/api test"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

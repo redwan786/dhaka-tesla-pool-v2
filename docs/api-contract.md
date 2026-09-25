@@ -5,9 +5,9 @@ The API is RESTful. Resource names are plural where appropriate, and the authent
 ## Public/auth routes
 
 ```text
-POST /api/auth/register
-POST /api/auth/login
-GET  /api/auth/me
+POST /api/auth/register  # creates PASSENGER accounts only
+POST /api/auth/login     # passenger and provisioned driver login
+GET  /api/auth/me        # requires Bearer token
 GET  /api/health
 ```
 
