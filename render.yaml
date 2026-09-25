@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: dhaka-tesla-pool-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run db:generate && npm run build:api
+    startCommand: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma && npm run db:seed && npm run start:api
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
