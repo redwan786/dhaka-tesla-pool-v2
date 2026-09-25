@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 3 status
+
+The relational database foundation is now included in `apps/api/prisma/`: Prisma schema, initial migration, and story-consistent seed data for Supabase PostgreSQL or the later Docker PostgreSQL fallback. Business API routes are intentionally deferred to later steps.
+
 ## Step 2 status
 
 Architecture-first documentation is now included in `docs/`: system architecture, ERD, domain rules, API contract, and technology decisions. Database schema and business features are intentionally deferred to later steps.
@@ -56,4 +60,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Database schema, auth, ride flows, testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Auth, ride flows, testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
