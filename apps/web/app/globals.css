@@ -1,0 +1,23 @@
+:root {
+  --ink: #17241f;
+  --green: #9ed6ad;
+  --paper: #f1f5ef;
+  --muted: #718078;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--paper); color: var(--ink); font-family: Arial, Helvetica, sans-serif; }
+.page-shell { min-height: 100vh; display: grid; place-items: center; padding: 32px; background: radial-gradient(circle at 80% 20%, #dcebdd 0, transparent 32%), var(--paper); }
+.hero-card { width: min(920px, 100%); background: var(--ink); color: #f7fbf5; border-radius: 28px; padding: clamp(32px, 8vw, 96px); box-shadow: 0 24px 70px rgba(23, 36, 31, .16); }
+.status-pill { position: absolute; top: 28px; left: 32px; border: 1px solid #b9cfbd; color: #52705b; border-radius: 999px; padding: 8px 14px; font-size: 12px; letter-spacing: .12em; font-weight: 700; }
+.eyebrow { color: var(--green); font-size: 13px; letter-spacing: .2em; font-weight: 700; }
+h1 { font-size: clamp(50px, 9vw, 112px); line-height: .92; letter-spacing: -.08em; margin: 28px 0; }
+h1 span { color: var(--green); }
+.intro { max-width: 560px; color: #bdcabe; font-size: 18px; line-height: 1.6; }
+.story-cast { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 64px; }
+.story-cast div { border-top: 1px solid #415349; padding-top: 14px; display: grid; gap: 8px; }
+.story-cast strong { font-size: 13px; color: #9bb1a0; }
+.story-cast span { font-size: 14px; }
+footer { color: var(--muted); font-size: 13px; margin-top: 20px; }
+@media (max-width: 700px) { .page-shell { padding: 24px; } .status-pill { position: static; margin-bottom: 20px; } .story-cast { grid-template-columns: 1fr; margin-top: 40px; } }
