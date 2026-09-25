@@ -8,6 +8,10 @@ const styles: Record<string, string> = {
   OPEN: 'bg-blue-100 text-blue-900',
   ARRIVED: 'bg-violet-100 text-violet-900',
   IN_PROGRESS: 'bg-emerald-100 text-emerald-900',
+  ONLINE: 'bg-emerald-100 text-emerald-900',
+  OFFLINE: 'bg-slate-200 text-slate-800',
+  PASSENGER: 'bg-blue-100 text-blue-900',
+  DRIVER: 'bg-violet-100 text-violet-900',
 };
 
 export function StatusBadge({ status }: { status: string }) {

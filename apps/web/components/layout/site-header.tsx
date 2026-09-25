@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 export function SiteHeader() {
   const { user, isLoading, clearSession } = useAuth();
   const router = useRouter();
+  const dashboardHref = user?.role === 'DRIVER' ? '/driver' : '/passenger';
 
   const signOut = () => {
     clearSession();
@@ -22,12 +23,12 @@ export function SiteHeader() {
           <span className="hidden sm:inline">Dhaka Tesla Pool</span>
         </Link>
         <nav className="flex items-center gap-2" aria-label="Primary navigation">
-          <Link className="rounded-full px-4 py-2 text-sm font-bold text-ink/70 hover:bg-white hover:text-ink" href="/">
+          <Link className="hidden rounded-full px-4 py-2 text-sm font-bold text-ink/70 hover:bg-white hover:text-ink sm:inline-flex" href="/">
             Home
           </Link>
           {!isLoading && user ? (
             <>
-              <Link className="rounded-full px-4 py-2 text-sm font-bold text-ink/70 hover:bg-white hover:text-ink" href="/dashboard">
+              <Link className="rounded-full px-4 py-2 text-sm font-bold text-ink/70 hover:bg-white hover:text-ink" href={dashboardHref}>
                 Dashboard
               </Link>
               <Button variant="secondary" onClick={signOut}>Sign out</Button>

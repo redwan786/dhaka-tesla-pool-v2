@@ -1,24 +1,94 @@
-import Link from 'next/link';
-import { Card } from '../../components/ui/card';
-import { EmptyState } from '../../components/ui/page-state';
+'use client';
 
-export default function LoginFoundationPage() {
+import Link from 'next/link';
+import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { AuthShell } from '../../components/auth/auth-shell';
+import { Button } from '../../components/ui/button';
+import { FieldShell, TextInput } from '../../components/ui/form-controls';
+import { Notice } from '../../components/ui/notice';
+import { apiRequest } from '../../lib/api/client';
+import type { AuthResult } from '../../lib/auth/types';
+import { errorMessage } from '../../lib/format';
+import { useAuth } from '../../providers/auth-provider';
+
+const DEMO_ACCOUNTS = [
+  { label: 'Nusrat · Passenger', email: 'nusrat@teslapool.local' },
+  { label: 'Jashim · Driver', email: 'jashim@teslapool.local' },
+] as const;
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { setSession } = useAuth();
+  const [email, setEmail] = useState('nusrat@teslapool.local');
+  const [password, setPassword] = useState('Pass123!');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const signIn = async (loginEmail: string, loginPassword: string) => {
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const result = await apiRequest<AuthResult>('/auth/login', {
+        method: 'POST',
+        body: { email: loginEmail, password: loginPassword },
+      });
+      setSession(result);
+      router.replace(result.user.role === 'DRIVER' ? '/driver' : '/passenger');
+    } catch (caught) {
+      setError(errorMessage(caught));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void signIn(email, password);
+  };
+
   return (
-    <main className="page-container grid min-h-[calc(100vh-4rem)] items-center py-12">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[.8fr_1.2fr]">
-        <Card className="bg-ink text-white">
-          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-mint">Authentication boundary</p>
-          <h1 className="mt-5 text-4xl font-black tracking-tight">One session. Two focused experiences.</h1>
-          <p className="mt-5 text-sm leading-7 text-white/60">
-            The shared auth provider restores JWT sessions and will direct passengers and drivers to their own flows in Step 11.
-          </p>
-          <Link className="mt-8 inline-flex text-sm font-bold text-mint hover:text-white" href="/">← Return home</Link>
-        </Card>
-        <EmptyState
-          title="Sign-in form arrives in Step 11"
-          description="This route intentionally proves the public navigation and auth boundary without implementing the product screen ahead of its feature branch."
-        />
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Your seat—or your Tesla—is waiting."
+      description="Sign in as a passenger to request and track a ride, or as Jashim to manage Bullet's pool lifecycle."
+      footer={<>Need an account? <Link className="font-bold text-leaf" href="/register">Register as a passenger</Link></>}
+    >
+      <div>
+        <h2 className="text-2xl font-black">Sign in</h2>
+        <p className="mt-2 text-sm text-ink/60">Use your account or a seeded demo identity.</p>
       </div>
-    </main>
+      {error ? <div className="mt-6"><Notice tone="error" title="Sign-in failed" message={error} /></div> : null}
+      <form className="mt-7 grid gap-5" onSubmit={submit}>
+        <FieldShell label="Email address" htmlFor="email">
+          <TextInput id="email" type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} />
+        </FieldShell>
+        <FieldShell label="Password" htmlFor="password">
+          <TextInput id="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+        </FieldShell>
+        <Button className="w-full" type="submit" isLoading={isSubmitting}>Sign in</Button>
+      </form>
+      <div className="mt-7">
+        <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-ink/45">Quick demo</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {DEMO_ACCOUNTS.map((account) => (
+            <Button
+              key={account.email}
+              type="button"
+              variant="secondary"
+              disabled={isSubmitting}
+              onClick={() => {
+                setEmail(account.email);
+                setPassword('Pass123!');
+                void signIn(account.email, 'Pass123!');
+              }}
+            >
+              {account.label}
+            </Button>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-ink/45">Demo password: Pass123!</p>
+      </div>
+    </AuthShell>
   );
 }
