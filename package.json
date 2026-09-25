@@ -18,7 +18,12 @@
     "db:generate": "npm --workspace apps/api run db:generate",
     "db:migrate": "npm --workspace apps/api run db:migrate",
     "db:seed": "npm --workspace apps/api run db:seed",
-    "test": "npm --workspace apps/api test"
+    "test": "npm --workspace apps/api run test:unit",
+    "test:unit": "npm --workspace apps/api run test:unit",
+    "test:integration": "npm --workspace apps/api run test:integration",
+    "test:all": "npm --workspace apps/api run test:all",
+    "test:typecheck": "npm --workspace apps/api run test:typecheck",
+    "db:test:prepare": "npm --workspace apps/api run db:test:prepare"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

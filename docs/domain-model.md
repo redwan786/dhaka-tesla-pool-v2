@@ -38,6 +38,16 @@ OPEN → ARRIVED → IN_PROGRESS → COMPLETED
   └──────────────────────────→ CANCELLED
 ```
 
+The driver uses explicit commands rather than sending an arbitrary status:
+
+| Driver command | Required pool | Next pool | Required active rides | Next active rides |
+|---|---|---|---|---|
+| `arrive` | OPEN | ARRIVED | MATCHED | DRIVER_ARRIVED |
+| `start` | ARRIVED | IN_PROGRESS | DRIVER_ARRIVED | STARTED |
+| `complete` | IN_PROGRESS | COMPLETED | STARTED | COMPLETED |
+
+Each command locks the pool and atomically advances the pool plus every ACTIVE membership's ride. Cancelled memberships are intentionally excluded. Any state mismatch rolls back the whole transaction instead of leaving passengers at different lifecycle stages.
+
 ## 3. Geography assumption
 
 The MVP uses a predefined list of Dhaka zones and coordinate points. It does not call a map provider or calculate actual road routes.
@@ -102,6 +112,10 @@ Bullet has a fixed capacity of 3 seats. The final check happens in a database tr
 
 If Nusrat and Shirin both try to claim one final seat, only one transaction can pass. The other receives a conflict response and no partial membership remains.
 
+Step 8 implements this as a PostgreSQL `FOR UPDATE` lock on Bullet's `Vehicle` row. Every acceptance for that vehicle acquires the same lock before it reads the request, open pool, or current occupancy. A partial unique index also permits only one active pool (`OPEN`, `ARRIVED`, or `IN_PROGRESS`) per vehicle. Check constraints reject non-positive capacities/seats and negative fares/occupancy at the database boundary.
+
+Acceptance is atomic: creating/reusing the pool, incrementing `occupiedSeats`, creating `PoolMember`, setting the ride to `MATCHED`, adding `StatusHistory`, and writing `AuditLog` either all commit or all roll back. `PoolMember.farePaisa` is the passenger's immutable fare snapshot; it is not another passenger's fare and is not recalculated when a new member joins.
+
 At larger scale, this design could evolve toward a dedicated allocation service, optimistic version columns, partitioning, or queue-based matching, but the MVP does not need a distributed solution.
 
 ## 7. Visibility rules
@@ -110,3 +124,9 @@ At larger scale, this design could evolve toward a dedicated allocation service,
 - A passenger can see only their own fare and status.
 - A driver can manage only pools belonging to their own vehicle.
 - A driver can see assigned passenger names and seats, but ownership checks still apply on every API call.
+
+## 8. Driver availability and request relevance
+
+Jashim may go online or offline. Waiting requests are available only while he is online. Going offline is rejected while Bullet has an `OPEN`, `ARRIVED`, or `IN_PROGRESS` pool so the driver cannot disappear after accepting passengers.
+
+When Bullet has no active pool, any waiting request that fits its fixed capacity is relevant. With an `OPEN` pool, a request is relevant only when it fits the remaining seats and passes the documented geography rule. After arrival/start, the request list is empty and acceptance returns `VEHICLE_ALREADY_ON_TRIP`. This keeps the list and final transaction check consistent while still treating the transaction as the authority.
