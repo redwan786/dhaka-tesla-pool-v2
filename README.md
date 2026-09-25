@@ -4,6 +4,22 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 8 status
+
+Tesla pooling and capacity allocation are now implemented. Jashim can accept a waiting ride into a new Bullet pool or the compatible existing OPEN pool. The transaction locks Bullet's vehicle row before re-reading capacity, then atomically creates an explicit membership, snapshots that passenger's fare, increments occupied seats, changes the ride to `MATCHED`, and records status/audit history. Bullet can never exceed its three-seat capacity; a concurrent loser receives `POOL_CAPACITY_EXCEEDED` or `RIDE_NOT_REQUESTED` without partial data.
+
+Apply the new database integrity migration before testing this step:
+
+```bash
+npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+```
+
+Driver endpoint added in this step:
+
+```text
+POST /api/driver/rides/:rideId/accept
+```
+
 ## Step 7 status
 
 The authenticated passenger ride flow is now implemented: request a ride with pickup/destination/seats, snapshot the integer-paisa fare, list and inspect only the passenger's own rides, preserve status history and audit records, prevent multiple active rides, and cancel only while `REQUESTED` or `MATCHED`. Matched cancellation safely releases occupied seats inside a transaction.
@@ -76,4 +92,4 @@ Detailed architecture and design documents:
 - [Technology decisions](docs/technology-decisions.md)
 - [API contract](docs/api-contract.md)
 
-Auth, ride flows, testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Driver lifecycle, frontend product flows, integration testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.

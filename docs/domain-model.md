@@ -102,6 +102,10 @@ Bullet has a fixed capacity of 3 seats. The final check happens in a database tr
 
 If Nusrat and Shirin both try to claim one final seat, only one transaction can pass. The other receives a conflict response and no partial membership remains.
 
+Step 8 implements this as a PostgreSQL `FOR UPDATE` lock on Bullet's `Vehicle` row. Every acceptance for that vehicle acquires the same lock before it reads the request, open pool, or current occupancy. A partial unique index also permits only one active pool (`OPEN`, `ARRIVED`, or `IN_PROGRESS`) per vehicle. Check constraints reject non-positive capacities/seats and negative fares/occupancy at the database boundary.
+
+Acceptance is atomic: creating/reusing the pool, incrementing `occupiedSeats`, creating `PoolMember`, setting the ride to `MATCHED`, adding `StatusHistory`, and writing `AuditLog` either all commit or all roll back. `PoolMember.farePaisa` is the passenger's immutable fare snapshot; it is not another passenger's fare and is not recalculated when a new member joins.
+
 At larger scale, this design could evolve toward a dedicated allocation service, optimistic version columns, partitioning, or queue-based matching, but the MVP does not need a distributed solution.
 
 ## 7. Visibility rules

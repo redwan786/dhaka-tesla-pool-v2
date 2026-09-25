@@ -34,11 +34,23 @@ GET   /api/driver/vehicle
 PATCH /api/driver/online-status
 GET   /api/driver/requests
 GET   /api/driver/pools
-POST  /api/driver/rides/:rideId/accept
+POST  /api/driver/rides/:rideId/accept # implemented in Step 8
 POST  /api/driver/pools/:poolId/arrive
 POST  /api/driver/pools/:poolId/start
 POST  /api/driver/pools/:poolId/complete
 ```
+
+### Accept-ride behavior
+
+- Only an authenticated `DRIVER` can call the endpoint.
+- The ride must still be `REQUESTED`.
+- The driver's active vehicle is derived from the JWT identity.
+- The first compatible ride creates an `OPEN` pool; later compatible rides join it.
+- Same pickup plus destinations within 4 km is required for a shared pool.
+- Success returns the pool, Bullet's capacity/occupancy, explicit memberships, assigned passenger names, seats, routes, ride statuses, and each membership's snapshotted fare.
+- `409 POOL_CAPACITY_EXCEEDED` rejects overbooking.
+- `409 RIDE_NOT_COMPATIBLE_WITH_OPEN_POOL` rejects an incompatible route while Bullet has an open pool.
+- `409 RIDE_NOT_REQUESTED` rejects duplicate or stale acceptance.
 
 ## API design rules
 
