@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 5 status
+
+Authentication and authorization are now implemented: passenger registration, passenger/driver login, bcrypt password hashing, signed JWT access tokens, authenticated current-user lookup, role middleware, reusable ownership guards, and authentication audit records. Public registration is passenger-only; the seeded Jashim account represents the provisioned driver.
+
 ## Step 4 status
 
 The Express backend foundation now includes validated environment configuration, structured request logging, security headers, CORS policy, standard success/error responses, Zod validation middleware, Prisma error mapping, a reusable Prisma client, modular routes, and health endpoints. Business features remain intentionally deferred.
