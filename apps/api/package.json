@@ -16,7 +16,11 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "@prisma/client": "^6.19.3",
-    "bcryptjs": "^3.0.2"
+    "bcryptjs": "^3.0.2",
+    "helmet": "^8.1.0",
+    "pino": "^9.7.0",
+    "pino-http": "^10.4.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
