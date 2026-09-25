@@ -7,6 +7,7 @@ coverage/
 .env.*
 !.env.example
 !.env.test.example
+!.env.docker.example
 *.log
 *.tsbuildinfo
 .DS_Store

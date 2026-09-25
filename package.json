@@ -23,7 +23,11 @@
     "test:integration": "npm --workspace apps/api run test:integration",
     "test:all": "npm --workspace apps/api run test:all",
     "test:typecheck": "npm --workspace apps/api run test:typecheck",
-    "db:test:prepare": "npm --workspace apps/api run db:test:prepare"
+    "db:test:prepare": "npm --workspace apps/api run db:test:prepare",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v --remove-orphans"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

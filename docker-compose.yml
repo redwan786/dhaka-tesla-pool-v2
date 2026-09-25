@@ -1,0 +1,72 @@
+name: dhaka-tesla-pool
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DOCKER_POSTGRES_DB:-dhaka_tesla_pool}
+      POSTGRES_USER: ${DOCKER_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${DOCKER_POSTGRES_PASSWORD:-dhaka_tesla_dev_password}
+    ports:
+      - "${DOCKER_POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      API_PORT: 4000
+      WEB_ORIGIN: http://localhost:${DOCKER_WEB_PORT:-3000}
+      LOG_LEVEL: info
+      JWT_SECRET: ${DOCKER_JWT_SECRET:-docker-local-jwt-secret-change-outside-development}
+      DATABASE_URL: postgresql://${DOCKER_POSTGRES_USER:-postgres}:${DOCKER_POSTGRES_PASSWORD:-dhaka_tesla_dev_password}@db:5432/${DOCKER_POSTGRES_DB:-dhaka_tesla_pool}?schema=public
+      DIRECT_URL: postgresql://${DOCKER_POSTGRES_USER:-postgres}:${DOCKER_POSTGRES_PASSWORD:-dhaka_tesla_dev_password}@db:5432/${DOCKER_POSTGRES_DB:-dhaka_tesla_pool}?schema=public
+    ports:
+      - "${DOCKER_API_PORT:-4000}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:4000/health > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 25s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${DOCKER_API_PORT:-4000}/api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    ports:
+      - "${DOCKER_WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:3000 > /dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+
+volumes:
+  postgres_data:
