@@ -4,6 +4,10 @@
 
 This repository is being built incrementally for the Software Engineer Internship challenge. It will model three actors: passengers (Nusrat, Rafiq, Shirin), driver/Tesla (Jashim/Bullet), and ride/pool.
 
+## Step 2 status
+
+Architecture-first documentation is now included in `docs/`: system architecture, ERD, domain rules, API contract, and technology decisions. Database schema and business features are intentionally deferred to later steps.
+
 ## Step 1 status
 
 The project foundation is in place:
@@ -44,4 +48,12 @@ Browser → Next.js frontend → Node.js Express API → Supabase PostgreSQL
                                                    ↘ Docker PostgreSQL fallback
 ```
 
-Architecture, ERD, database schema, auth, ride flows, testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
+Detailed architecture and design documents:
+
+- [Architecture](docs/architecture.md)
+- [Domain rules](docs/domain-model.md)
+- [ERD](docs/erd.md)
+- [Technology decisions](docs/technology-decisions.md)
+- [API contract](docs/api-contract.md)
+
+Database schema, auth, ride flows, testing, Docker, deployment, screenshots, and the final video will be added in later feature branches.
