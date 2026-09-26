@@ -8,9 +8,9 @@ Dhaka Tesla Pool is a production-minded ride-pooling MVP built around the Banani
 
 | Resource | URL |
 |---|---|
-| Frontend | **Pending Step 14 deployment — add the Vercel production URL here** |
-| API health | **Pending Step 14 deployment — add the Render `/health` URL here** |
-| Six-minute walkthrough | **Pending Step 15 recording — add the Loom/video URL here** |
+| Frontend | https://dhaka-tesla-pool-v2-web.vercel.app |
+| API health | https://dhaka-tesla-pool-api-1h5u.onrender.com/health |
+| Six-minute walkthrough | Pending Step 15 recording |
 
 Deployment instructions and the exact post-deploy verification sequence are in [docs/deployment.md](docs/deployment.md).
 
