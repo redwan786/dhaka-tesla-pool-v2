@@ -15,7 +15,7 @@ export default function HomePage() {
         <div className="absolute -right-28 -top-28 h-96 w-96 rounded-full border-[70px] border-mint/10" />
         <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.25fr_.75fr]">
           <div className="relative z-10">
-            <p className="text-xs font-extrabold uppercase tracking-[0.28em] text-mint">Step 10 · Frontend foundation</p>
+            <p className="text-xs font-extrabold uppercase tracking-[0.28em] text-mint">Version 1.0.0 · Live MVP</p>
             <h1 className="mt-5 max-w-4xl text-5xl font-black leading-[0.94] tracking-[-0.055em] sm:text-6xl lg:text-[4.75rem] xl:text-[5.25rem]">
               Share a seat.<br /><span className="text-mint">Split the fare.</span>
             </h1>
