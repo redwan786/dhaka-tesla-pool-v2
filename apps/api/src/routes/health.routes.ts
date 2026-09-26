@@ -9,7 +9,7 @@ healthRouter.get('/', (_request, response) => {
     {
       status: 'ok',
       service: 'dhaka-tesla-pool-api',
-      version: '0.1.0',
+      version: '1.0.0',
       timestamp: new Date().toISOString(),
     },
     { message: 'Service is healthy' },

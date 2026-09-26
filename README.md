@@ -8,9 +8,9 @@ Dhaka Tesla Pool is a production-minded ride-pooling MVP built around the Banani
 
 | Resource | URL |
 |---|---|
-| Frontend | https://dhaka-tesla-pool-v2-web.vercel.app |
-| API health | https://dhaka-tesla-pool-api-1h5u.onrender.com/health |
-| Six-minute walkthrough | Pending Step 15 recording |
+| Frontend | [https://dhaka-tesla-pool-v2-web.vercel.app](https://dhaka-tesla-pool-v2-web.vercel.app) |
+| API health | [https://dhaka-tesla-pool-api-1h5u.onrender.com/health](https://dhaka-tesla-pool-api-1h5u.onrender.com/health) |
+| Six-minute walkthrough | [Temporary walkthrough link](https://youtu.be/redwan) |
 
 Deployment instructions and the exact post-deploy verification sequence are in [docs/deployment.md](docs/deployment.md).
 
@@ -72,7 +72,13 @@ Nusrat travels from Banani to Mohakhali while Rafiq travels from Banani to Gulsh
 
 ![Dhaka Tesla Pool sign in](docs/screenshots/login.png)
 
-More passenger, driver, pooling, and edge-case screenshots are captured during the Step 15 release walkthrough.
+### Passenger dashboard
+
+![Nusrat passenger dashboard](docs/screenshots/passenger.png)
+
+### Driver dashboard
+
+![Jashim driver dashboard](docs/screenshots/driver.png)
 
 ## Demo identities
 
@@ -351,6 +357,7 @@ AI use is disclosed rather than hidden.
 
 ## Supporting documents
 
+- [v1.0.0 changelog](CHANGELOG.md)
 - [Architecture](docs/architecture.md)
 - [Domain and fare rules](docs/domain-model.md)
 - [ERD](docs/erd.md)
@@ -362,6 +369,7 @@ AI use is disclosed rather than hidden.
 - [Deployment](docs/deployment.md)
 - [Viral-scale reasoning](docs/scaling.md)
 - [Six-minute video script](docs/video-script.md)
+- [v1.0.0 release process](docs/release.md)
 - [Submission checklist](docs/submission-checklist.md)
 
 ## License

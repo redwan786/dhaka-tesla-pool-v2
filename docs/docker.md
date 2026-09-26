@@ -102,8 +102,35 @@ Available overrides:
 | `DOCKER_API_PORT` | `4000` | Host API port and browser API URL |
 | `DOCKER_WEB_PORT` | `3000` | Host frontend port and API CORS origin |
 | `DOCKER_JWT_SECRET` | local development value | JWT signing secret |
+| `DOCKER_WEB_ORIGIN` | `http://localhost:3000` | Exact browser origin allowed by API CORS |
+| `DOCKER_PUBLIC_API_URL` | `http://localhost:4000/api` | API URL baked into the frontend bundle |
 
-If ports are changed, use the same command with `--env-file`; the web build receives the selected API port and the API receives the selected web origin.
+If ports are changed, set the matching public origin and API URL in `.env.docker`, then use the same command with `--env-file`.
+
+## VMware verification
+
+When the browser runs inside an Ubuntu Desktop VM, the normal localhost defaults work.
+
+When the browser runs on the Windows host, obtain the VM address:
+
+```bash
+hostname -I
+```
+
+Create `.env.docker` from the example and replace `VM_IP` in:
+
+```text
+DOCKER_WEB_ORIGIN=http://VM_IP:3000
+DOCKER_PUBLIC_API_URL=http://VM_IP:4000/api
+```
+
+Then rebuild because the public API URL is embedded in the Next.js bundle:
+
+```bash
+docker compose --env-file .env.docker up --build --detach
+```
+
+Open `http://VM_IP:3000` from Windows. VMware NAT with port forwarding or Bridged networking must allow host-to-VM access to ports `3000` and `4000`.
 
 ## Image design
 

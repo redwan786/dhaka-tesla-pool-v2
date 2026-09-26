@@ -22,7 +22,9 @@ RUN apt-get update \
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
+# Copy the builder's dependency tree because `prisma generate` writes the
+# schema-specific client into node_modules during the builder stage.
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node package.json package-lock.json ./
 COPY --chown=node:node apps/api/package.json ./apps/api/package.json
 COPY --from=builder --chown=node:node /app/apps/api/dist ./apps/api/dist

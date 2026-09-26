@@ -2,7 +2,7 @@
 
 ## Product and repository
 
-- [ ] GitHub repository is public/evaluator-accessible
+- [x] GitHub repository is public/evaluator-accessible
 - [x] Working frontend, backend, and PostgreSQL implementation
 - [x] Story cast consistently uses Jashim, Bullet, Nusrat, Rafiq, and Shirin
 - [x] No real secret committed
@@ -29,8 +29,7 @@
 - [x] Known limitations and next improvements
 - [x] Viral-scale reasoning
 - [x] Six-minute video outline
-- [x] Home and login screenshots
-- [ ] Add final passenger, driver, and concurrency screenshots
+- [x] Home, login, passenger, and driver screenshots
 
 ## Testing
 
@@ -51,16 +50,16 @@
 - [x] Database, API, and web health checks
 - [x] Deployment configuration and instructions
 - [ ] Verify `docker compose up --build` on a Docker-enabled second environment
-- [ ] Deploy API on a free/free-tier host
-- [ ] Deploy frontend on a free/free-tier host
-- [ ] Run hosted passenger/driver smoke test
-- [ ] Add frontend and API URLs to README
+- [x] Deploy API on a free/free-tier host
+- [x] Deploy frontend on a free/free-tier host
+- [x] Run hosted passenger/driver smoke test
+- [x] Add frontend and API URLs to README
 
 ## Git and release
 
 - [x] Feature branches with incremental logical commits
 - [x] Feature branches merged to `master` with merge commits
-- [ ] Push public `master`
+- [x] Push public `master`
 - [ ] Cut `pre-release` from `master`
 - [ ] Perform integration/docs/deployment fixes on `pre-release`
 - [ ] Cut `release/v1.0.0` from `pre-release`

@@ -1,6 +1,6 @@
 {
   "name": "dhaka-tesla-pool",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "apps/api",
@@ -27,7 +27,8 @@
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "docker:reset": "docker compose down -v --remove-orphans"
+    "docker:reset": "docker compose down -v --remove-orphans",
+    "release:check": "npm run test:typecheck && npm run test:unit && npm run build && node scripts/release-check.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
